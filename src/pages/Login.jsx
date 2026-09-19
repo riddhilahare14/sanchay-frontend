@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PiggyBank, User, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { login } from "../services/api";
 
-function Login() {
+function Login({ setToken }) {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -23,6 +23,7 @@ function Login() {
       const data = await login(username, password);
 
       localStorage.setItem("token", data.token);
+      setToken(data.token);
 
       navigate("/dashboard");
     } catch (error) {
