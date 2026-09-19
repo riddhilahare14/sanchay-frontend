@@ -46,7 +46,7 @@ function App() {
 
         <Route
           path="*"
-          element={<Navigate to="/dashboard" />}
+          element={token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />}
         />
       </Routes>
     </BrowserRouter>
