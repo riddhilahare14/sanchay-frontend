@@ -217,3 +217,27 @@ export async function markLoanMonthlyPaid(loanId, principalRepayment) {
 
   return data;
 }
+
+export async function createLoan(memberId, principalAmount) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_BASE_URL}/api/loans`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      memberId,
+      principalAmount: Number(principalAmount),
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "कर्ज जोडता आले नाही");
+  }
+
+  return data;
+}

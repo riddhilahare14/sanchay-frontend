@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import MonthlyContribution from "./pages/MonthlyContribution";
 import MonthlyLoans from "./pages/MonthlyLoans";
 import MonthlyPreview from "./pages/MonthlyPreview";
+import AddLoan from "./pages/AddLoan";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -36,6 +37,11 @@ function App() {
         <Route
           path="/monthly-preview"
           element={token ? <MonthlyPreview /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/add-loan"
+          element={token ? <AddLoan /> : <Navigate to="/login" />}
         />
 
         <Route
