@@ -10,7 +10,11 @@ import {
   ChevronRight,
   BadgeIndianRupee,
 } from "lucide-react";
-import { getDashboard, previewMonthly } from "../services/api";
+import {
+  getDashboard,
+  previewMonthly,
+  addBankInterest,
+} from "../services/api";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -18,11 +22,16 @@ function Dashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [monthlyPreview, setMonthlyPreview] = useState(null);
   const [error, setError] = useState("");
+  
+  const [showInterestInput, setShowInterestInput] = useState(false);
+  const [interestAmount, setInterestAmount] = useState("");
+  const [interestError, setInterestError] = useState("");
+  const [addingInterest, setAddingInterest] = useState(false);
 
   useEffect(() => {
     loadDashboard();
   }, []);
-  
+
   async function loadDashboard() {
     try {
       const [dashboardData, previewData] = await Promise.all([
@@ -34,6 +43,29 @@ function Dashboard() {
       setMonthlyPreview(previewData);
     } catch (error) {
       setError(error.message);
+    }
+  }
+  
+  async function handleAddInterest() {
+    if (!interestAmount || Number(interestAmount) <= 0) {
+      setInterestError("कृपया व्याजाची रक्कम भरा");
+      return;
+    }
+  
+    try {
+      setAddingInterest(true);
+      setInterestError("");
+  
+      await addBankInterest(Number(interestAmount));
+  
+      setInterestAmount("");
+      setShowInterestInput(false);
+  
+      await loadDashboard();
+    } catch (error) {
+      setInterestError(error.message);
+    } finally {
+      setAddingInterest(false);
     }
   }
 
@@ -249,6 +281,108 @@ function Dashboard() {
                 strokeWidth={2}
               />
             </button>
+
+            {/* Add bank interest */}
+            {!showInterestInput ? (
+              <button
+                onClick={() => {
+                  setShowInterestInput(true);
+                  setInterestError("");
+                }}
+                className="w-full bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between text-left hover:border-blue-200 transition"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                    <Landmark
+                      className="w-5 h-5 text-blue-600"
+                      strokeWidth={1.75}
+                    />
+                  </div>
+
+                  <div>
+                    <p className="font-medium text-slate-900">
+                      बँकेकडून मिळालेले व्याज जमा करा
+                    </p>
+
+                    <p className="text-sm text-slate-500 mt-0.5">
+                      बँकेकडून मिळालेली व्याजाची रक्कम नोंदवा
+                    </p>
+                  </div>
+                </div>
+
+                <ChevronRight
+                  className="w-5 h-5 text-slate-300"
+                  strokeWidth={2}
+                />
+              </button>
+            ) : (
+              <div className="w-full bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                    <Landmark
+                      className="w-5 h-5 text-blue-600"
+                      strokeWidth={1.75}
+                    />
+                  </div>
+
+                  <div>
+                    <p className="font-medium text-slate-900">
+                      बँकेकडून मिळालेले व्याज
+                    </p>
+
+                    <p className="text-sm text-slate-500 mt-0.5">
+                      मिळालेली रक्कम भरा
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                      ₹
+                    </span>
+
+                    <input
+                      type="number"
+                      min="1"
+                      value={interestAmount}
+                      onChange={(e) => {
+                        setInterestAmount(e.target.value);
+                        setInterestError("");
+                      }}
+                      placeholder="उदा. 1250"
+                      className="w-full rounded-xl border border-slate-300 pl-8 pr-3 py-3"
+                      autoFocus
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleAddInterest}
+                    disabled={addingInterest}
+                    className="rounded-xl bg-blue-950 text-white px-5 py-3 font-medium disabled:opacity-50"
+                  >
+                    {addingInterest ? "जमा करत आहे..." : "जमा करा"}
+                  </button>
+                </div>
+
+                {interestError && (
+                  <p className="text-sm text-red-600 mt-2">
+                    {interestError}
+                  </p>
+                )}
+
+                <button
+                  onClick={() => {
+                    setShowInterestInput(false);
+                    setInterestAmount("");
+                    setInterestError("");
+                  }}
+                  className="text-sm text-slate-500 mt-3"
+                >
+                  रद्द करा
+                </button>
+              </div>
+            )}
 
           </div>
         </section>

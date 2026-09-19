@@ -241,3 +241,31 @@ export async function createLoan(memberId, principalAmount) {
 
   return data;
 }
+
+export async function addBankInterest(amount) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/state/bank-interest`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        amount: Number(amount),
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || "व्याज जमा करता आले नाही"
+    );
+  }
+
+  return data;
+}
